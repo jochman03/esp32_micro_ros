@@ -1,9 +1,7 @@
 #include <stdbool.h>
 #include <stdint.h>
-
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
-
 #include "driver/gpio.h"
 #include "esp_event.h"
 #include "esp_log.h"
@@ -14,7 +12,7 @@
 #include "adc.h"
 #include "espnow_tx.h"
 
-#define BUTTON_GPIO GPIO_NUM_25
+#define BUTTON_GPIO    GPIO_NUM_25
 #define ESPNOW_CHANNEL 3
 
 static void wifi_init(void);
@@ -23,17 +21,16 @@ static void espnow_task(void* args);
 
 static const char* TAG = "MAIN";
 
-void app_main(void){
+void app_main(void) {
     wifi_init();
     adc_init();
     button_init();
     espnow_init();
 
-    xTaskCreate(espnow_task, "espnow_task",
-        4096, NULL, 5, NULL);
+    xTaskCreate(espnow_task, "espnow_task", 4096, NULL, 5, NULL);
 }
 
-static void wifi_init(void){
+static void wifi_init(void) {
     esp_err_t ret = nvs_flash_init();
 
     if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {
@@ -57,7 +54,7 @@ static void wifi_init(void){
     ESP_LOGI(TAG, "Wi-Fi started for ESP-NOW, channel=%d", ESPNOW_CHANNEL);
 }
 
-static void button_init(void){
+static void button_init(void) {
     gpio_config_t cfg = {
         .pin_bit_mask = 1ULL << BUTTON_GPIO,
         .mode = GPIO_MODE_INPUT,
@@ -69,7 +66,7 @@ static void button_init(void){
     ESP_ERROR_CHECK(gpio_config(&cfg));
 }
 
-static void espnow_task(void* args){
+static void espnow_task(void* args) {
     uint32_t seq = 0;
 
     while (1) {
@@ -83,8 +80,8 @@ static void espnow_task(void* args){
 
         espnow_send(&packet);
 
-        ESP_LOGI(TAG, "TX seq=%lu adc0=%d adc1=%d button=%d", 
-            (unsigned long)packet.seq, packet.adc[0], packet.adc[1], packet.button);
+        ESP_LOGI(TAG, "TX seq=%lu adc0=%d adc1=%d button=%d", (unsigned long)packet.seq,
+                 packet.adc[0], packet.adc[1], packet.button);
 
         vTaskDelay(pdMS_TO_TICKS(50));
     }

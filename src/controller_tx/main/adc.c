@@ -1,5 +1,4 @@
 #include <stdbool.h>
-
 #include "esp_adc/adc_oneshot.h"
 #include "esp_adc/adc_cali.h"
 #include "esp_adc/adc_cali_scheme.h"
@@ -8,12 +7,11 @@
 #include "adc.h"
 #include "utils.h"
 
-
-#define ADC_X_CHANNEL ADC_CHANNEL_6
-#define ADC_Y_CHANNEL ADC_CHANNEL_7
+#define ADC_X_CHANNEL   ADC_CHANNEL_6
+#define ADC_Y_CHANNEL   ADC_CHANNEL_7
 #define ADC_BAT_CHANNEL ADC_CHANNEL_4
 
-#define ADC_ATTEN ADC_ATTEN_DB_12
+#define ADC_ATTEN     ADC_ATTEN_DB_12
 #define ADC_MAX_12BIT 4095
 
 static adc_oneshot_unit_handle_t adc_handle;
@@ -24,7 +22,7 @@ static bool adc_calibration_init(void);
 
 static bool adc_calibrated = false;
 
-void adc_init(void){
+void adc_init(void) {
     adc_oneshot_unit_init_cfg_t unit_cfg = {
         .unit_id = ADC_UNIT_1,
     };
@@ -43,7 +41,7 @@ void adc_init(void){
     adc_calibrated = adc_calibration_init();
 }
 
-int16_t adc_read_x(void){
+int16_t adc_read_x(void) {
     int16_t x_mv = adc_read_channel_mv(ADC_X_CHANNEL);
     int16_t bat_mv = adc_read_battery();
 
@@ -56,7 +54,7 @@ int16_t adc_read_x(void){
     return clamp_int16(value, 0, ADC_MAX_12BIT);
 }
 
-int16_t adc_read_y(void){
+int16_t adc_read_y(void) {
     int16_t y_mv = adc_read_channel_mv(ADC_Y_CHANNEL);
     int16_t bat_mv = adc_read_battery();
 
@@ -69,11 +67,11 @@ int16_t adc_read_y(void){
     return clamp_int16(value, 0, ADC_MAX_12BIT);
 }
 
-int16_t adc_read_battery(void){
+int16_t adc_read_battery(void) {
     return adc_read_channel_mv(ADC_BAT_CHANNEL);
 }
 
-static int16_t adc_read_channel_raw(adc_channel_t channel){
+static int16_t adc_read_channel_raw(adc_channel_t channel) {
     int raw = 0;
 
     esp_err_t err = adc_oneshot_read(adc_handle, channel, &raw);
@@ -84,7 +82,7 @@ static int16_t adc_read_channel_raw(adc_channel_t channel){
     return (int16_t)raw;
 }
 
-static int16_t adc_read_channel_mv(adc_channel_t channel){
+static int16_t adc_read_channel_mv(adc_channel_t channel) {
     int raw = adc_read_channel_raw(channel);
 
     if (raw < 0) {
@@ -104,7 +102,7 @@ static int16_t adc_read_channel_mv(adc_channel_t channel){
     return (int16_t)voltage_mv;
 }
 
-static bool adc_calibration_init(void){
+static bool adc_calibration_init(void) {
     adc_cali_line_fitting_config_t cali_config = {
         .unit_id = ADC_UNIT_1,
         .atten = ADC_ATTEN,

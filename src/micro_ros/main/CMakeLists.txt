@@ -1,1 +1,1 @@
-idf_component_register(SRCS main.c adc.c micro_ros.c espnow_rx.c INCLUDE_DIRS "")
+idf_component_register(SRCS main.c sensors.c micro_ros.c espnow_rx.c INCLUDE_DIRS "")

@@ -118,7 +118,7 @@ This reduces drift caused by battery discharge and provides more stable operator
 
 ### Published topics
 
-```text
+
 /esp/sensors     # local robot sensor values
 /esp/joystick    # joystick telemetry
 /esp/button      # controller button state
@@ -126,7 +126,6 @@ This reduces drift caused by battery discharge and provides more stable operator
 
 ### Subscribed topics
 
-```text
 /esp/horn        # buzzer activation command
 
 ---

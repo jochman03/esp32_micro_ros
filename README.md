@@ -118,15 +118,14 @@ This reduces drift caused by battery discharge and provides more stable operator
 
 ### Published topics
 
-
-/esp/sensors     # local robot sensor values
-/esp/joystick    # joystick telemetry
-/esp/button      # controller button state
-/esp/battery     # controller battery voltage [mV]
+- /esp/sensors     # local robot sensor values
+- /esp/joystick    # joystick telemetry
+- /esp/button      # controller button state
+- /esp/battery     # controller battery voltage [mV]
 
 ### Subscribed topics
 
-/esp/horn        # buzzer activation command
+- /esp/horn        # buzzer activation command
 
 ---
 

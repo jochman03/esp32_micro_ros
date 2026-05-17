@@ -1,137 +1,116 @@
-# ESP32 micro-ROS controller
+# ESP32 micro-ROS Controller
 
-A dual-node embedded communication system bridging wireless ESP-NOW input devices with a micro-ROS stack for mobile robotics applications.
+A dual-node embedded communication system combining ESP-NOW wireless communication with micro-ROS for ROS 2 robotics platforms.
 
-The system connects a handheld controller and a robot-side ESP32 interface into a low-latency telemetry and control pipeline integrated with ROS 2 (Jetson Nano).
+The project connects a wireless ESP32 handheld controller with a robot-side ESP32 interface, creating a low-latency bridge between physical hardware and a ROS 2 system running on Jetson Nano.
 
 ---
 
-## Project Overview
+## Overview
 
-The system consists of two cooperating ESP32 firmware nodes:
+The system consists of two cooperating ESP32 firmware applications:
 
-- a wireless handheld controller for operator input and telemetry,
-- a robot-side embedded interface acting as an ESP-NOW receiver and micro-ROS bridge.
+- a handheld wireless controller,
+- a robot-side ESP32 micro-ROS bridge.
 
-Together, they form a real-time communication layer between physical operator control, onboard robot sensors, and higher-level ROS 2 logic.
+Together, they provide real-time operator input, sensor acquisition, and ROS 2 communication.
 
 ---
 
 ## System Architecture
 
-### High-level system overview
+### System overview
 
-![System overview (robot + controller)](images/main.jpg)
+![System overview](images/main.jpg)
 
-The architecture is split into two independent but cooperating ESP32 firmware applications communicating via ESP-NOW and ROS 2.
+The two ESP32 devices communicate wirelessly using ESP-NOW, while the robot-side node integrates with ROS 2 through micro-ROS.
 
 ---
 
-## Controller Node
+## Handheld Controller
 
 ![Handheld controller](images/controller.jpg)
 
-The controller-side ESP32 acts as a wireless handheld input device.
+The controller-side ESP32 acts as a wireless input device.
 
-### Responsibilities
+### Features
 
-- joystick ADC acquisition (X / Y axes)
-- push-button state monitoring
-- battery voltage measurement
-- ADC compensation relative to battery level
-- ESP-NOW packet transmission over fixed Wi-Fi channel
+- joystick input acquisition
+- push-button handling
+- battery voltage monitoring
+- ADC normalization based on battery level
+- ESP-NOW telemetry transmission
 
-### Output
-
-The controller continuously broadcasts normalized operator input packets to the robot-side node.
+The controller continuously sends normalized operator input data to the robot-side ESP32.
 
 ---
 
-## Robot Interface Node
+## Robot Interface
 
-![Robot interface / ESP32 mounted on robot](images/front.jpg)
+![Robot interface](images/front.jpg)
 
-The robot-side ESP32 serves as the main embedded I/O bridge between physical robot hardware and the ROS 2 ecosystem.
+The robot-side ESP32 acts as the main embedded I/O bridge between robot hardware and ROS 2.
 
-### Responsibilities
+### Features
 
-- receiving wireless controller packets via ESP-NOW
-- reading local analog sensor arrays (ADC)
-- publishing telemetry via micro-ROS topics
-- receiving ROS 2 commands from Jetson Nano
-- controlling buzzer output
+- ESP-NOW packet reception
+- local analog sensor acquisition
+- micro-ROS topic publishing
+- ROS 2 command subscription
+- buzzer output control
 
-This node combines wireless operator input, local sensing, and bidirectional ROS 2 communication inside a single FreeRTOS-based firmware application.
+The firmware combines wireless operator input, onboard sensing, and ROS communication inside a FreeRTOS application.
 
 ---
 
-## Implemented Functionality
+## Functionality
 
-### Wireless operator telemetry
+### Wireless telemetry
 
 The system transmits:
 
-- joystick X axis
-- joystick Y axis
-- push-button state
+- joystick X/Y position
+- controller button state
 - controller battery voltage
 
-Data is sent via ESP-NOW and forwarded into ROS 2 topics by the robot-side ESP32.
+Data is received by the robot-side ESP32 and forwarded into ROS 2 topics.
 
 ---
 
-### Local robot sensor acquisition
+### Sensor acquisition
 
-The robot-side ESP32 performs continuous ADC acquisition from onboard sensors.
+The robot-side ESP32 periodically reads onboard analog sensors.
 
-Current configuration includes:
+Current setup includes:
 
 - IR line detection sensors
-- photoresistor-based light sensors
+- photoresistor light sensors
 
-Sensor values are periodically published to ROS 2 for higher-level processing.
-
----
-
-### ROS 2 command interface
-
-The robot-side firmware subscribes to ROS 2 control topics.
-
-Currently implemented:
-
-- buzzer activation command
-
-This enables bidirectional communication between ROS 2 logic and embedded hardware.
+Sensor values are published to ROS 2 for higher-level processing on Jetson Nano.
 
 ---
 
 ## Firmware Design
 
-Both ESP32 devices run independent FreeRTOS-based firmware applications.
+Both ESP32 devices run independent FreeRTOS-based firmware.
 
-The architecture emphasizes:
+The design focuses on:
 
+- low-latency wireless communication
 - concurrent task execution
-- low-latency ESP-NOW communication
 - periodic ADC sampling
-- non-blocking micro-ROS integration
-- modular separation of controller and robot responsibilities
-
-This design allows the system to scale into larger robotic communication architectures without redesign.
+- non-blocking micro-ROS communication
+- modular separation between controller and robot interface
 
 ---
 
 ## ADC Battery Compensation
 
-Because the controller is battery-powered, joystick ADC readings are affected by voltage drift.
+Because the controller is battery-powered, joystick ADC values vary with supply voltage.
 
-To mitigate this, the controller continuously measures battery voltage and rescales joystick values back into a normalized 12-bit range before transmission.
+To improve consistency, the controller measures battery voltage and rescales joystick readings back into a normalized 12-bit range before transmission.
 
-This provides:
-
-- stable operator control
-- reduced dependency on battery state
-- consistent ROS 2 telemetry input
+This reduces drift caused by battery discharge and provides more stable operator control.
 
 ---
 
@@ -140,20 +119,16 @@ This provides:
 ### Published topics
 
 ```text
-/esp/sensors     # local robot analog sensor values
-/esp/joystick    # wireless controller joystick telemetry
-/esp/button      # wireless controller push-button state
+/esp/sensors     # local robot sensor values
+/esp/joystick    # joystick telemetry
+/esp/button      # controller button state
 /esp/battery     # controller battery voltage [mV]
-```
 
 ### Subscribed topics
 
 ```text
 /esp/horn        # buzzer activation command
-```
 
 ---
 
-### Youtube videos
-
-https://www.youtube.com/playlist?list=PLLbGYqHAyf1eH0HuIkOklTwuBiebvZPPm
+### Youtube videos https://www.youtube.com/playlist?list=PLLbGYqHAyf1eH0HuIkOklTwuBiebvZPPm
